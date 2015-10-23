@@ -19,11 +19,12 @@ var scaleX,scaleY;
 
 var axisX = d3.svg.axis()
     .orient('bottom')
-    .tickSize(-height);
+    .tickSize(-height)
+    .tickValues([10000,50000,100000]);
 var axisY = d3.svg.axis()
     .orient('left')
     .tickSize(-width)
-    .tickValues([0,25,50,75,100,125]);
+    .tickValues([0,25,50,75,100]);
 
 //Start importing data
 d3.csv('data/world_bank_2012.csv', parse, dataLoaded);
@@ -51,13 +52,20 @@ function dataLoaded(error, rows){
     //with data loaded, we can now mine the data
     var gdpPerCapMin = d3.min(rows, function(d){return d.gdpPerCap}),
         gdpPerCapMax = d3.max(rows, function(d){return d.gdpPerCap});
+        //primaryCompletionMin = d3.min(rows, function(d){return d.primaryCompletionMin}),
+        //primaryCompletionMax = d3.max(rows, function(d){return d.primaryCompletionMax}),
+        //urbanPopMin = d3.min(rows, function(d){return d.urbanPopMin}),
+        //urbanPopMax = d3.max(rows, function(d){return d.urbanPopMax});
 
 
 
     //with mined information, set up domain and range for x and y scales
     //Log scale for x, linear scale for y
     scaleX = d3.scale.log().domain([gdpPerCapMin,gdpPerCapMax]).range([0,width]),
-    scaleY = d3.scale.linear().domain([0,125]).range([height,0]);
+    scaleY = d3.scale.linear().domain([0,150]).range([height,0]);
+    //scaleY2 = d3.scale.log().domain([primaryCompletionMin,primaryCompletionMax]).range([0,width]),
+    //scaleY3 = d3.scale.log().domain([urbanPopMin,urbanPopMax]).range([0,width]);
+    
 
     axisX.scale(scaleX);
     axisY.scale(scaleY);
@@ -82,20 +90,24 @@ function dataLoaded(error, rows){
         .attr('class','country')
 
         countries.append('line')
+        .filter(function(d){return d.primaryCompletion !== undefined})
         .attr('x1',function(d){return scaleX(d.gdpPerCap)})
         .attr('x2',function(d){return scaleX(d.gdpPerCap)})
         .attr('y1',height)
         .attr('y2',function(d){return scaleY(d.primaryCompletion)})
-        .style('stroke-width','2px')
+        .style('stroke-width',1)
         .style('stroke','red')
+        .attr('class','primaryCompletion')
         
 
         countries.append('line')
+        .filter(function(d){return d.urbanPop !== undefined})
         .attr('x1',function(d){return scaleX(d.gdpPerCap)})
         .attr('x2',function(d){return scaleX(d.gdpPerCap)})
         .attr('y1',height)
         .attr('y2',function(d){return scaleY(d.urbanPop)})
-        .style('stroke-width','2px')
-        .style('stroke','blue');
+        .style('stroke-width',1)
+        .style('stroke','blue')
+        .attr('class','urbanPop');
 }
 
